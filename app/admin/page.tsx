@@ -22,7 +22,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { UserPlus, UserMinus, UserCog, Monitor, LogOut, User, Loader2 } from "lucide-react"
+import { UserPlus, UserMinus, UserCog, Monitor, LogOut, User, Loader2, History } from "lucide-react"
 import type { User as UserType } from "@/lib/types/models"
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
@@ -34,6 +34,7 @@ export default function AdminPage() {
   const [showUpdateDialog, setShowUpdateDialog] = useState(false)
   const [addingCashier, setAddingCashier] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showAuditLogs, setShowAuditLogs] = useState(false)
 
   // Form states
   const [newName, setNewName] = useState("")
@@ -45,6 +46,9 @@ export default function AdminPage() {
 
   const { data: employeesData, isLoading } = useSWR("/api/employees", fetcher)
   const employees = employeesData?.data || []
+
+  const { data: auditLogsData, isLoading: isLoadingAuditLogs } = useSWR("/api/audit-logs", fetcher)
+  const auditLogs = auditLogsData?.data || []
 
   useEffect(() => {
     const savedUser = localStorage.getItem("pos_user")
@@ -152,56 +156,111 @@ export default function AdminPage() {
 
       <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Employee List */}
+          {/* Employee List or Audit Logs */}
           <div className="lg:col-span-3">
             <Card>
               <CardHeader>
-                <CardTitle>Employee Management</CardTitle>
+                <CardTitle className="flex items-center justify-between">
+                  <span>{showAuditLogs ? "Audit Logs (Login History)" : "Employee Management"}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowAuditLogs(!showAuditLogs)}
+                  >
+                    <History className="h-4 w-4 mr-2" />
+                    {showAuditLogs ? "Show Employees" : "Show Audit Logs"}
+                  </Button>
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[500px]">
-                  {isLoading ? (
-                    <div className="flex items-center justify-center h-40">
-                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Username</TableHead>
-                          <TableHead>Position</TableHead>
-                          <TableHead>Name</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {employees.map((emp: any) => (
-                          <TableRow key={emp.userId}>
-                            <TableCell className="font-mono">{emp.username}</TableCell>
-                            <TableCell>
-                              <Badge variant={emp.role === "admin" ? "default" : "secondary"}>{emp.role}</Badge>
-                            </TableCell>
-                            <TableCell>{emp.name}</TableCell>
-                            <TableCell>
-                              <Badge variant={emp.isActive ? "default" : "destructive"}>
-                                {emp.isActive ? "Active" : "Inactive"}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-destructive"
-                                onClick={() => handleRemoveEmployee(emp.userId)}
-                              >
-                                <UserMinus className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
+                  {showAuditLogs ? (
+                    // Audit Logs View
+                    isLoadingAuditLogs ? (
+                      <div className="flex items-center justify-center h-40">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : auditLogs.length === 0 ? (
+                      <div className="flex items-center justify-center h-40 text-muted-foreground">
+                        No audit logs found. Run the migration script to import legacy data.
+                      </div>
+                    ) : (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>User</TableHead>
+                            <TableHead>Role</TableHead>
+                            <TableHead>Action</TableHead>
+                            <TableHead>Timestamp</TableHead>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                        </TableHeader>
+                        <TableBody>
+                          {auditLogs.map((log: any, index: number) => (
+                            <TableRow key={log.logId || index}>
+                              <TableCell className="font-medium">{log.userName}</TableCell>
+                              <TableCell>
+                                <Badge variant={log.userRole === "admin" ? "default" : "secondary"}>
+                                  {log.userRole}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant={log.action === "login" ? "default" : "outline"}>
+                                  {log.action}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground">
+                                {log.legacyTimestamp || new Date(log.timestamp).toLocaleString()}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    )
+                  ) : (
+                    // Employees View
+                    isLoading ? (
+                      <div className="flex items-center justify-center h-40">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Username</TableHead>
+                            <TableHead>Position</TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {employees.map((emp: any) => (
+                            <TableRow key={emp.userId}>
+                              <TableCell className="font-mono">{emp.username}</TableCell>
+                              <TableCell>
+                                <Badge variant={emp.role === "admin" ? "default" : "secondary"}>{emp.role}</Badge>
+                              </TableCell>
+                              <TableCell>{emp.name}</TableCell>
+                              <TableCell>
+                                <Badge variant={emp.isActive ? "default" : "destructive"}>
+                                  {emp.isActive ? "Active" : "Inactive"}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-destructive"
+                                  onClick={() => handleRemoveEmployee(emp.userId)}
+                                >
+                                  <UserMinus className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    )
                   )}
                 </ScrollArea>
               </CardContent>

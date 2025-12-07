@@ -450,7 +450,7 @@ interface ParsedAuditLog {
   timestamp: string
 }
 
-// Fixed regex to properly parse audit logs - using $$ and $$ for parentheses
+// Fixed regex to properly parse audit logs - using \( and \) for literal parentheses
 function parseAuditLogs(data: string): ParsedAuditLog[] {
   const logs: ParsedAuditLog[] = []
   const lines = data.trim().split("\n")
@@ -460,8 +460,8 @@ function parseAuditLogs(data: string): ParsedAuditLog[] {
     if (!trimmedLine) continue
 
     // Pattern: "Name (ID Role) logs into/out of POS System. Time: timestamp"
-    // Using $$ and $$ to match literal parentheses
-    const match = trimmedLine.match(/^(.+?) $$(\d+) (\w+)$$ logs (into|out of) POS System\. Time: (.+)$/)
+    // Using \( and \) to match literal parentheses
+    const match = trimmedLine.match(/^(.+?) \((\d+) (\w+)\) logs (into|out of) POS System\. Time: (.+)$/)
     if (match) {
       logs.push({
         userName: match[1],

@@ -136,9 +136,8 @@ export default function TransactionPage() {
   const handleReturnTypeSelect = (type: "rental" | "unsatisfactory") => {
     setReturnType(type)
     setShowReturnTypeDialog(false)
-    if (type === "rental") {
-      setShowPhoneDialog(true)
-    }
+    // Show phone dialog for both return types - API requires customer phone for all returns
+    setShowPhoneDialog(true)
   }
 
   const handleAddItem = () => {
@@ -327,12 +326,12 @@ export default function TransactionPage() {
           items:
             transactionType === "return" && returnType === "rental"
               ? cart.map((item) => ({
-                  productId: item.product.productId,
-                  productName: item.product.name,
-                  quantity: item.quantity,
-                  daysLate: item.daysLate || 0,
-                  originalPrice: item.product.price,
-                }))
+                productId: item.product.productId,
+                productName: item.product.name,
+                quantity: item.quantity,
+                daysLate: item.daysLate || 0,
+                originalPrice: item.product.price,
+              }))
               : cart,
           paymentMethod,
           cashierId: user?.userId || "CASHIER-001",
@@ -566,7 +565,7 @@ export default function TransactionPage() {
       </div>
 
       {/* Phone Number Dialog */}
-      <Dialog open={showPhoneDialog} onOpenChange={() => {}}>
+      <Dialog open={showPhoneDialog} onOpenChange={() => { }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Customer Phone Number</DialogTitle>
@@ -592,7 +591,7 @@ export default function TransactionPage() {
       </Dialog>
 
       {/* Return Type Dialog */}
-      <Dialog open={showReturnTypeDialog} onOpenChange={() => {}}>
+      <Dialog open={showReturnTypeDialog} onOpenChange={() => { }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Return Type</DialogTitle>
