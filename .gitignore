@@ -1,0 +1,110 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.pnpm-debug.log
+# If you use pnpm's global store, don't ignore pnpm-lock.yaml; that's a required file. Ignore pnpm's store dirs though.
+.pnpm-store/
+node_modules/.pnpm/
+
+# Next.js
+.next/
+.next/cache
+.next/static
+out/
+build/
+
+# Build output
+dist/
+public/build/
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.*.local
+.env.local
+.env.production
+.env.development
+.env.test
+.env.*.local
+.env.*.bak
+.env-override
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# IDEs and editors
+.vscode/
+.vscode/*
+.idea/
+*.sublime-workspace
+*.sublime-project
+.history/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor temporary files
+*.swp
+*.swo
+*~
+
+# Coverage
+coverage/
+.nyc_output/
+coverage-final.json
+
+# Test and report
+junit.xml
+jest-results.json
+
+# ESLint & tooling caches
+.eslintcache
+.cache/
+.cache-loader
+
+# Storybook
+storybook-static/
+
+# Docker
+docker-compose.override.yml
+
+# Misc
+*.tgz
+*.local
+*.pem
+*.key
+*.crt
+
+# Local DBs
+*.sqlite
+*.sqlite3
+*.db
+
+# Dependabot
+dependabot/**/*
+
+# Keep lockfiles under version control
+# pnpm-lock.yaml is intentionally NOT ignored for deterministic installs
+
+# Secrets (if any appear)
+secret-*
+credentials.json
+
+# Optional: uncomment if you use these toolchains
+# .parcel-cache/
+# .sass-cache/
+# .cache/babel-loader

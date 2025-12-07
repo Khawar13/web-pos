@@ -1,0 +1,66 @@
+-- Database Initialization Script
+-- Run this to create the initial collections and indexes in MongoDB
+-- Note: MongoDB creates collections automatically, but this documents the schema
+
+-- Products Collection Schema:
+-- {
+--   productId: string (unique),
+--   name: string,
+--   description: string,
+--   price: number,
+--   cost: number,
+--   quantity: number,
+--   category: string,
+--   barcode: string (optional),
+--   imageUrl: string (optional),
+--   isActive: boolean,
+--   createdAt: date,
+--   updatedAt: date
+-- }
+
+-- Transactions Collection Schema:
+-- {
+--   transactionId: string (unique),
+--   items: array of TransactionItem,
+--   customerId: string (optional),
+--   subtotal: number,
+--   tax: number,
+--   discount: number,
+--   total: number,
+--   paymentMethod: enum,
+--   paymentStatus: enum,
+--   cashierId: string,
+--   createdAt: date
+-- }
+
+-- Users Collection Schema:
+-- {
+--   userId: string (unique),
+--   username: string (unique),
+--   password: string (hashed),
+--   role: enum,
+--   name: string,
+--   email: string,
+--   isActive: boolean,
+--   createdAt: date,
+--   lastLogin: date
+-- }
+
+-- Customers Collection Schema:
+-- {
+--   customerId: string (unique),
+--   name: string,
+--   email: string,
+--   phone: string,
+--   address: string,
+--   loyaltyPoints: number,
+--   createdAt: date
+-- }
+
+-- Categories Collection Schema:
+-- {
+--   categoryId: string (unique),
+--   name: string,
+--   description: string,
+--   isActive: boolean
+-- }
