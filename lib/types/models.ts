@@ -99,7 +99,7 @@ export interface TransactionItem {
 export interface User {
   _id?: string
   userId: string
-  legacyId: string // Original employee ID (e.g., "110001")
+  legacyId?: string // Original employee ID (e.g., "110001") - optional for new users
   username: string
   password: string // In production, this should be hashed
   role: UserRole

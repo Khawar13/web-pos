@@ -295,17 +295,39 @@ export default function TransactionPage() {
       }
     }
 
-    setShowPaymentDialog(true)
+    // For refunds (unsatisfactory returns), process immediately without payment dialog
+    const isRefund = transactionType === "return" && returnType === "unsatisfactory"
+
+    if (isRefund) {
+      // Alert cashier about refund amount
+      alert(`REFUND: Give $${total.toFixed(2)} back to customer`)
+      // Set payment method to cash for refunds
+      setPaymentMethod("cash")
+      // Process the refund immediately
+      setTimeout(() => handlePayment(), 100) // Small delay to ensure state is set
+    } else {
+      // For normal transactions, show payment dialog
+      setShowPaymentDialog(true)
+    }
   }
 
   const handlePayment = async () => {
+    const isRefund = transactionType === "return" && returnType === "unsatisfactory"
+
     if (paymentMethod === "cash") {
-      const cash = Number.parseFloat(cashAmount)
-      if (isNaN(cash) || cash < total) {
-        alert("Value must be greater than or equal to total value")
-        return
+      // For refunds (unsatisfactory returns), customer is owed money
+      if (isRefund) {
+        // Refund scenario - customer gets money back
+        setChange(total) // Total amount is the refund
+      } else {
+        // Normal payment scenario - customer pays
+        const cash = Number.parseFloat(cashAmount)
+        if (isNaN(cash) || cash < total) {
+          alert("Value must be greater than or equal to total value")
+          return
+        }
+        setChange(cash - total)
       }
-      setChange(cash - total)
     }
 
     if (paymentMethod === "card") {
@@ -657,8 +679,12 @@ export default function TransactionPage() {
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Payment</DialogTitle>
-            <DialogDescription>Total amount: ${total.toFixed(2)}</DialogDescription>
+            <DialogTitle>{total < 0 ? "Refund" : "Payment"}</DialogTitle>
+            <DialogDescription>
+              {total < 0
+                ? `Refund amount: $${Math.abs(total).toFixed(2)}`
+                : `Total amount: $${total.toFixed(2)}`}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)}>
@@ -678,7 +704,8 @@ export default function TransactionPage() {
               </div>
             </RadioGroup>
 
-            {paymentMethod === "cash" && (
+            {/* Only show cash amount input if NOT a refund */}
+            {paymentMethod === "cash" && total >= 0 && (
               <div className="space-y-2">
                 <Label htmlFor="cashAmount">Cash Amount</Label>
                 <Input

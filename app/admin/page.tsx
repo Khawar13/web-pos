@@ -37,7 +37,9 @@ export default function AdminPage() {
   const [showAuditLogs, setShowAuditLogs] = useState(false)
 
   // Form states
-  const [newName, setNewName] = useState("")
+  const [newFirstName, setNewFirstName] = useState("")
+  const [newLastName, setNewLastName] = useState("")
+  const [newEmail, setNewEmail] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [updateUsername, setUpdateUsername] = useState("")
   const [updateName, setUpdateName] = useState("")
@@ -83,14 +85,18 @@ export default function AdminPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: newName,
+          firstName: newFirstName,
+          lastName: newLastName,
+          email: newEmail,
           password: newPassword,
           role: addingCashier ? "cashier" : "admin",
         }),
       })
       mutate("/api/employees")
       setShowAddDialog(false)
-      setNewName("")
+      setNewFirstName("")
+      setNewLastName("")
+      setNewEmail("")
       setNewPassword("")
     } finally {
       setIsSubmitting(false)
@@ -322,8 +328,16 @@ export default function AdminPage() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Full name" />
+              <Label htmlFor="firstName">First Name</Label>
+              <Input id="firstName" value={newFirstName} onChange={(e) => setNewFirstName(e.target.value)} placeholder="First name" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lastName">Last Name</Label>
+              <Input id="lastName" value={newLastName} onChange={(e) => setNewLastName(e.target.value)} placeholder="Last name" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="email@example.com" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
@@ -340,7 +354,7 @@ export default function AdminPage() {
             <Button variant="outline" onClick={() => setShowAddDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handleAddEmployee} disabled={isSubmitting || !newName || !newPassword}>
+            <Button onClick={handleAddEmployee} disabled={isSubmitting || !newFirstName || !newLastName || !newPassword}>
               {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Add Employee
             </Button>

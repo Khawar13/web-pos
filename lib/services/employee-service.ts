@@ -7,15 +7,20 @@ import { userRepository } from "../repositories"
 
 export class EmployeeService {
   // Add new employee (from EmployeeManagement.add)
-  async addEmployee(name: string, password: string, role: UserRole, email?: string): Promise<User> {
+  async addEmployee(firstName: string, lastName: string, password: string, role: UserRole, email?: string): Promise<User> {
     const userId = `USR-${Date.now()}`
-    const username = userId.toLowerCase()
+    const name = `${firstName} ${lastName}`
+    // Generate username from firstName+lastName (lowercase, no spaces)
+    const username = `${firstName}${lastName}`.toLowerCase().replace(/\s+/g, '')
 
     const user: User = {
       userId,
+      legacyId: undefined,
       username,
       password, // In production, hash with bcrypt
       role,
+      firstName,
+      lastName,
       name,
       email: email || "",
       isActive: true,

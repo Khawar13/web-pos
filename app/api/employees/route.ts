@@ -20,13 +20,13 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { name, password, role, email } = await request.json()
+    const { firstName, lastName, password, role, email } = await request.json()
 
-    if (!name || !password || !role) {
-      return NextResponse.json({ success: false, error: "Name, password, and role required" }, { status: 400 })
+    if (!firstName || !lastName || !password || !role) {
+      return NextResponse.json({ success: false, error: "First name, last name, password, and role required" }, { status: 400 })
     }
 
-    const employee = await employeeService.addEmployee(name, password, role, email)
+    const employee = await employeeService.addEmployee(firstName, lastName, password, role, email)
     const { password: _, ...safeEmployee } = employee
 
     return NextResponse.json({ success: true, data: safeEmployee })

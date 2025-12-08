@@ -5,6 +5,7 @@
 import type { User, UserRole } from "../types/models"
 import { userRepository } from "../repositories"
 import { eventService } from "./event-service"
+import { database } from "../db/mongodb"
 
 export class AuthService {
   // Login (from POSSystem.logIn)
@@ -23,6 +24,21 @@ export class AuthService {
     // Update last login
     await userRepository.update(user.userId, { lastLogin: new Date() })
 
+    // Save audit log to database
+    try {
+      const db = await database.connect()
+      await db.collection("audit_logs").insertOne({
+        logId: `LOG-${Date.now()}`,
+        userId: user.userId,
+        userName: user.name,
+        userRole: user.role,
+        action: "login",
+        timestamp: new Date(),
+      })
+    } catch (error) {
+      console.error("Failed to save login audit log:", error)
+    }
+
     eventService.emit("user_login", `User ${user.name} logged in`, { userId: user.userId })
 
     // Return role code like original Java system
@@ -34,6 +50,26 @@ export class AuthService {
 
   // Logout (from POSSystem.logOut)
   async logout(userId: string, position: string): Promise<void> {
+    // Get user info for audit log
+    const user = await userRepository.findById(userId)
+
+    if (user) {
+      // Save logout audit log to database
+      try {
+        const db = await database.connect()
+        await db.collection("audit_logs").insertOne({
+          logId: `LOG-${Date.now()}`,
+          userId: user.userId,
+          userName: user.name,
+          userRole: user.role,
+          action: "logout",
+          timestamp: new Date(),
+        })
+      } catch (error) {
+        console.error("Failed to save logout audit log:", error)
+      }
+    }
+
     eventService.emit("user_logout", `User logged out from ${position}`, { userId })
   }
 
